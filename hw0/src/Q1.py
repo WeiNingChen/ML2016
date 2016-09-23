@@ -8,5 +8,5 @@ if __name__ == '__main__':
     v.append(float(line.split( )[l]))
   
   output = open('ans1.txt', 'w')
-  output.write(",".join(str(i) for i in v))
+  output.write(",".join(str(i) for i in sorted(v)))
     

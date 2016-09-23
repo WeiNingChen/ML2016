@@ -1,2 +1,2 @@
 #!/bin/bash
-python Q1.py $1 $2
+python src/Q1.py $1 $2

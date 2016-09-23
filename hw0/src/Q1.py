@@ -1,8 +1,8 @@
 import sys
 
 if __name__ == '__main__':
-  f = file(sys.argv[1])
-  l = int(sys.argv[2])
+  f = file(sys.argv[2])
+  l = int(sys.argv[1])
   v=[]
   for line in f:
     v.append(float(line.split( )[l]))

@@ -50,13 +50,11 @@ def test_data_parser(filename):
     tmp=[]
   return testSet
 
-def AdaGrad(f, gf, n, trainSet, theta,T):
-    #theta = np.zeros(n, dtype=float)
+def AdaGrad(f, gf, n, trainSet, theta, IT):
     gsqd = np.zeros(n, dtype=float)
-    #T = 150000
-    alpha = 1
+    alpha = 0.5
     e = 1e-8
-    for t in range(1, T):
+    for t in range(1, IT):
         g = gf(trainSet, theta)
         gsqd += g*g
         for i in range(0, n):
@@ -69,7 +67,7 @@ def AdaGrad(f, gf, n, trainSet, theta,T):
             return theta
     return theta
 
-def quadratic_loss(trainSet,w):
+def f_loss(trainSet,w):
   rnt = 0
   for i in range(len(trainSet)):
     rnt += np.square(int(round(np.inner(trainSet[i][0],w[0:len(w)-1])+w[len(w)-1]))-trainSet[i][1])
@@ -78,25 +76,31 @@ def quadratic_loss(trainSet,w):
 
 def grad_f(trainSet,w):
   rgconst = 1
-  rnt = w-w;
+  rnt = np.zeros(len(w), dtype=float);
   for i in range(len(trainSet)):
     rnt[0:len(w)-1] = np.add(rnt[0:len(w)-1],2*(np.inner(trainSet[i][0],w[0:len(w)-1])+w[len(w)-1]-trainSet[i][1])*trainSet[i][0])
+    #bias term
     rnt[len(w)-1] = np.add(rnt[len(w)-1],2*(np.inner(trainSet[i][0],w[0:len(w)-1])+w[len(w)-1]-trainSet[i][1]))
   return  rnt+2*rgconst*w
 
 def getTestLabel(testData, Model):
-  l = np.inner(testData, Model[0:len(Model)-1])+Model[len(Model)-1]
-  return int(round(l))
+  lable = np.inner(testData, Model[0:len(Model)-1])+Model[len(Model)-1]
+  return int(round(lable))
+
 
 if __name__== '__main__':
+  #parse data
   trainSet = train_data_parser("data/train.csv")
   testSet = test_data_parser("data/test_X.csv")
   
-  w = AdaGrad(quadratic_loss, grad_f, 163, trainSet, w_1, 50000)
+  #training models
+  w_1 = AdaGrad(f_loss, grad_f, 163, trainSet[0:1000], np.zeros(163, dtype=float), 100)
+  w = AdaGrad(f_loss, grad_f, 163, trainSet, w_1, 250000)
   
+  #get test labels
   labels = [getTestLabel(testData, w) for testData in testSet]
   ids = ['id_'+str(i) for i in range(len(labels))]
   
-  output = pd.DataFrame({'id': ids, 'value': labels})
-  output.to_csv("test5.csv", index=False)
+  #save the result
+  pd.DataFrame({'id': ids, 'value': labels}).to_csv("test6.csv", index=False)
   

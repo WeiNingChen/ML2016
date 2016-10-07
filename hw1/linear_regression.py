@@ -26,7 +26,7 @@ def train_data_parser(filename):
   for hour in range(MONTH*DATE_PER_MONTH*HOUR):
     rawData[hour] = [float_with_str(i) for i in rawData[hour]]
     if hour%10 == 9:
-      trainSet.append([tmp,rawData[hour][9]])
+      trainSet.append([np.array(tmp),rawData[hour][9]])
       tmp = []
     else: tmp.extend(np.array(rawData[hour]))
   return trainSet
@@ -45,10 +45,47 @@ def test_data_parser(filename):
     testSet.append([tmp,'id_'+str(data)])
     tmp=[]
   return testSet
-    
+
+def AdaGrad(f, gf, n, trainSet):
+    theta = np.zeros(n, dtype=float)
+    bias = 0;
+    gsqd = np.zeros(n, dtype=float)
+    T = 1000000
+    alpha = 1
+    e = 1e-8
+    for t in range(1, T):
+        g = gf(trainSet, theta)
+        gsqd += g*g
+        for i in range(0, n):
+            theta[i] -= alpha * g[i] / np.sqrt(gsqd[i] + e)
+        grad_norm = np.linalg.norm(gf(trainSet, theta))
+        print "Itr = %d" % t
+        #print "theta =", theta
+        print "f(theta) =", f(trainSet, theta, bias)
+        #print "grad_f(theta) =", gf(trainSet, theta)
+        print "norm(grad) =", grad_norm
+        if grad_norm < 1e-3:
+            return
+    pass
+
+def quadratic_loss(trainSet,w):
+  rnt = 0
+  for i in range(len(trainSet)):
+    rnt += np.square(np.inner(trainSet[i][0],w)-trainSet[i][1])
+  return rnt
+
+def grad_f(trainSet,w):
+  rnt = w-w;
+  for i in range(len(trainSet)):
+    rnt = np.add(rnt,2*(np.inner(trainSet[i][0],w)-trainSet[i][1])*trainSet[i][0])
+  return  rnt
+
+def getTestLabel(testData, Model)
+  l = np.inner(testData, Model)
+  return l
 
 if __name__== '__main__':
   trainSet = train_data_parser("data/train.csv")
   testSet = test_data_parser("data/test_X.csv")
-  print trainSet[0][0][0:10]
-  print testSet[0][0][0:10]
+  w = AdaGrad(quadratic_loss, grad_f, 162, trainSet)
+  print w 

@@ -52,7 +52,7 @@ def test_data_parser(filename):
 
 def AdaGrad(f, gf, n, trainSet, theta, IT):
     gsqd = np.zeros(n, dtype=float)
-    alpha = 0.5
+    alpha = 5
     e = 1e-8
     for t in range(1, IT):
         g = gf(trainSet, theta)
@@ -75,7 +75,7 @@ def f_loss(trainSet,w):
   return rnt
 
 def grad_f(trainSet,w):
-  rgconst = 0.1
+  rgconst = 5
   rnt = np.zeros(len(w), dtype=float);
   for i in range(len(trainSet)):
     rnt[0:len(w)-1] = np.add(rnt[0:len(w)-1],2*(np.inner(trainSet[i][0],w[0:len(w)-1])+w[len(w)-1]-trainSet[i][1])*trainSet[i][0])
@@ -97,6 +97,7 @@ if __name__== '__main__':
   for i in range(len(trainSet)):
     X.append(trainSet[i][0])
     y.append(trainSet[i][1])
+  # Direct calculate optimal w w/o regularizer
   X = np.array(X)
   y = np.array(y)
   A = np.dot(X.T,y.T)
@@ -112,12 +113,12 @@ if __name__== '__main__':
   
   #training models
   #w_1 = AdaGrad(f_loss, grad_f, 163, trainSet[0:1000], np.zeros(163, dtype=float), 100)
-  model = AdaGrad(f_loss, grad_f, 163, trainSet, np.zeros(163), 100000)
+  model = AdaGrad(f_loss, grad_f, 163, trainSet, np.zeros(163), 200000)
   
   #get test labels
   labels = [getTestLabel(testData, model) for testData in testSet]
   ids = ['id_'+str(i) for i in range(len(labels))]
   
   #save the result
-  pd.DataFrame({'id': ids, 'value': labels}).to_csv("test_lambda_0_1.csv", index=False)
+  pd.DataFrame({'id': ids, 'value': labels}).to_csv("test_lambda_5.csv", index=False)
   

@@ -75,7 +75,7 @@ def f_loss(trainSet,w):
   return rnt
 
 def grad_f(trainSet,w):
-  rgconst = 500
+  rgconst = 200
   rnt = np.zeros(len(w), dtype=float);
   for i in range(len(trainSet)):
     rnt[0:len(w)-1] = np.add(rnt[0:len(w)-1],2*(np.inner(trainSet[i][0],w[0:len(w)-1])+w[len(w)-1]-trainSet[i][1])*trainSet[i][0])
@@ -113,12 +113,12 @@ if __name__== '__main__':
   
   #training models
   #w_1 = AdaGrad(f_loss, grad_f, 163, trainSet[0:1000], np.zeros(163, dtype=float), 100)
-  model = AdaGrad(f_loss, grad_f, 163, trainSet, np.zeros(163), 300000)
+  model = AdaGrad(f_loss, grad_f, 163, trainSet, np.zeros(163), 250000)
   
   #get test labels
   labels = [getTestLabel(testData, model) for testData in testSet]
   ids = ['id_'+str(i) for i in range(len(labels))]
   
   #save the result
-  pd.DataFrame({'id': ids, 'value': labels}).to_csv("test_lambda_500.csv", index=False)
+  pd.DataFrame({'id': ids, 'value': labels}).to_csv("test_lambda_200.csv", index=False)
   

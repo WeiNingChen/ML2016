@@ -51,16 +51,14 @@ def test_data_parser(filename):
   return testSet
 
 def AdaGrad(f, gf, n, trainSet, theta,T):
-    #theta = np.zeros(n, dtype=float)
-    gsqd = np.zeros(n, dtype=float)
-    #T = 150000
-    alpha = 1
+    gd_sq_sum = np.zeros(n, dtype=float)
+    eta = 1
     e = 1e-8
     for t in range(1, T):
         g = gf(trainSet, theta)
-        gsqd += g*g
+        gd_sq_sum += g*g
         for i in range(0, n):
-            theta[i] -= alpha * g[i] / np.sqrt(gsqd[i] + e)
+            theta[i] -= eta * g[i] / np.sqrt(gd_sq_sum[i] + e)
         grad_norm = np.linalg.norm(gf(trainSet, theta))
         print "Itr = %d" % t
         print "f(theta) =", f(trainSet, theta)
@@ -92,11 +90,12 @@ if __name__== '__main__':
   trainSet = train_data_parser("data/train.csv")
   testSet = test_data_parser("data/test_X.csv")
   
-  w = AdaGrad(quadratic_loss, grad_f, 163, trainSet, w_1, 50000)
+  w_init = np.zeros(163)
+  w = AdaGrad(quadratic_loss, grad_f, 163, trainSet, w_init, 200)
   
   labels = [getTestLabel(testData, w) for testData in testSet]
   ids = ['id_'+str(i) for i in range(len(labels))]
   
   output = pd.DataFrame({'id': ids, 'value': labels})
-  output.to_csv("test5.csv", index=False)
+  output.to_csv("linear_regression.csv", index=False)
   

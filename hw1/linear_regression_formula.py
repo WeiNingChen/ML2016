@@ -51,18 +51,18 @@ def test_data_parser(filename):
   return testSet
 
 def AdaGrad(f, gf, n, trainSet, theta, IT):
-    gsqd = np.zeros(n, dtype=float)
-    alpha = 1
+    gd_sq_sum = np.zeros(n, dtype=float)
+    eta = 1
     e = 1e-8
     for t in range(1, IT):
         g = gf(trainSet, theta)
-        gsqd += g*g
+        gd_sq_sum += g*g
         for i in range(0, n):
-            theta[i] -= alpha * g[i] / np.sqrt(gsqd[i] + e)
+            theta[i] -= eta * g[i] / np.sqrt(gd_sq_sum[i] + e)
         grad_norm = np.linalg.norm(gf(trainSet, theta))
-        print "Itr = %d" % t
-        print "f(theta) =", f(trainSet, theta)
-        print "norm(grad) =", grad_norm
+        #print "Itr = %d" % t
+        #print "f(theta) =", f(trainSet, theta)
+        #print "norm(grad) =", grad_norm
         if grad_norm < 1e-3:
             return theta
     return theta
@@ -75,7 +75,7 @@ def f_loss(trainSet,w):
   return rnt
 
 def grad_f(trainSet,w):
-  rgconst = 5000
+  rgconst = 100
   rnt = np.zeros(len(w), dtype=float);
   for i in range(len(trainSet)):
     rnt[0:len(w)-1] = np.add(rnt[0:len(w)-1],2*(np.inner(trainSet[i][0],w[0:len(w)-1])+w[len(w)-1]-trainSet[i][1])*trainSet[i][0])
@@ -102,23 +102,23 @@ if __name__== '__main__':
   y = np.array(y)
   A = np.dot(X.T,y.T)
   B = np.linalg.pinv(np.dot(X.T,X))
-  w = np.dot(A,B)
-  b = np.dot(w,np.sum(X,axis=0))-np.sum(y)
-  print np.sum(X,axis=1)
+  w_init = np.dot(A,B)
+  b = np.dot(w_init,np.sum(X,axis=0))-np.sum(y)
+  #print np.sum(X,axis=1)
   #print b
-  print w.shape
-  w = np.append(w,b) 
-  print w.shape
+  #print w_init.shape
+  w_init = np.append(w_init,b) 
+  #print w_init.shape
   
   
   #training models
   #w_1 = AdaGrad(f_loss, grad_f, 163, trainSet[0:1000], np.zeros(163, dtype=float), 100)
-  model = AdaGrad(f_loss, grad_f, 163, trainSet, np.zeros(163), 350000)
+  model = AdaGrad(f_loss, grad_f, 163, trainSet, w_init, 50)
   
   #get test labels
   labels = [getTestLabel(testData, model) for testData in testSet]
   ids = ['id_'+str(i) for i in range(len(labels))]
   
   #save the result
-  pd.DataFrame({'id': ids, 'value': labels}).to_csv("test_lambda_5000.csv", index=False)
+  pd.DataFrame({'id': ids, 'value': labels}).to_csv("kaggle_best.csv", index=False)
   

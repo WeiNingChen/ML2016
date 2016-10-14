@@ -113,7 +113,7 @@ if __name__== '__main__':
   
   #training models
   #w_1 = AdaGrad(f_loss, grad_f, 163, trainSet[0:1000], np.zeros(163, dtype=float), 100)
-  model = AdaGrad(f_loss, grad_f, 163, trainSet, w_init, 50)
+  model = AdaGrad(f_loss, grad_f, 163, trainSet, w_init, 100000)
   
   #get test labels
   labels = [getTestLabel(testData, model) for testData in testSet]

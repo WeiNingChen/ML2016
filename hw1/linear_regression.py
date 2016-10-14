@@ -91,7 +91,7 @@ if __name__== '__main__':
   testSet = test_data_parser("data/test_X.csv")
   
   w_init = np.zeros(163)
-  w = AdaGrad(quadratic_loss, grad_f, 163, trainSet, w_init, 50)
+  w = AdaGrad(quadratic_loss, grad_f, 163, trainSet, w_init, 100000)
   
   labels = [getTestLabel(testData, w) for testData in testSet]
   ids = ['id_'+str(i) for i in range(len(labels))]

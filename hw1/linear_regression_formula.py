@@ -60,9 +60,9 @@ def AdaGrad(f, gf, n, trainSet, theta, IT):
         for i in range(0, n):
             theta[i] -= eta * g[i] / np.sqrt(gd_sq_sum[i] + e)
         grad_norm = np.linalg.norm(gf(trainSet, theta))
-        print "Itr = %d" % t
-        print "f(theta) =", f(trainSet, theta)
-        print "norm(grad) =", grad_norm
+        #print "Itr = %d" % t
+        #print "f(theta) =", f(trainSet, theta)
+        #print "norm(grad) =", grad_norm
         if grad_norm < 1e-3:
             return theta
     return theta
@@ -104,21 +104,21 @@ if __name__== '__main__':
   B = np.linalg.pinv(np.dot(X.T,X))
   w_init = np.dot(A,B)
   b = np.dot(w_init,np.sum(X,axis=0))-np.sum(y)
-  print np.sum(X,axis=1)
+  #print np.sum(X,axis=1)
   #print b
-  print w_init.shape
+  #print w_init.shape
   w_init = np.append(w_init,b) 
-  print w_init.shape
+  #print w_init.shape
   
   
   #training models
   #w_1 = AdaGrad(f_loss, grad_f, 163, trainSet[0:1000], np.zeros(163, dtype=float), 100)
-  model = AdaGrad(f_loss, grad_f, 163, trainSet, w_init, 200)
+  model = AdaGrad(f_loss, grad_f, 163, trainSet, w_init, 50)
   
   #get test labels
   labels = [getTestLabel(testData, model) for testData in testSet]
   ids = ['id_'+str(i) for i in range(len(labels))]
   
   #save the result
-  pd.DataFrame({'id': ids, 'value': labels}).to_csv("kaggle_best_100.csv", index=False)
+  pd.DataFrame({'id': ids, 'value': labels}).to_csv("kaggle_best.csv", index=False)
   

@@ -60,9 +60,9 @@ def AdaGrad(f, gf, n, trainSet, theta,T):
         for i in range(0, n):
             theta[i] -= eta * g[i] / np.sqrt(gd_sq_sum[i] + e)
         grad_norm = np.linalg.norm(gf(trainSet, theta))
-        print "Itr = %d" % t
-        print "f(theta) =", f(trainSet, theta)
-        print "norm(grad) =", grad_norm
+        #print "Itr = %d" % t
+        #print "f(theta) =", f(trainSet, theta)
+        #print "norm(grad) =", grad_norm
         if grad_norm < 1e-3:
             return theta
     return theta
@@ -91,7 +91,7 @@ if __name__== '__main__':
   testSet = test_data_parser("data/test_X.csv")
   
   w_init = np.zeros(163)
-  w = AdaGrad(quadratic_loss, grad_f, 163, trainSet, w_init, 200)
+  w = AdaGrad(quadratic_loss, grad_f, 163, trainSet, w_init, 50)
   
   labels = [getTestLabel(testData, w) for testData in testSet]
   ids = ['id_'+str(i) for i in range(len(labels))]

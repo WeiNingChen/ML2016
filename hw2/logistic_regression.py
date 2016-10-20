@@ -54,7 +54,7 @@ def cross_entropy(dataset,w):
     ce += y*np.log(sigmoid(np.dot(x,w))+e)+(1-y)*np.log(1-sigmoid(np.dot(x,w))+e)
   return ce
   
-def logistic(dataset, it=100000): 
+def logistic(dataset, it=10000): 
   [data_X, data_y]=dataset
   #print data_X.shape
   #print data_y.shape

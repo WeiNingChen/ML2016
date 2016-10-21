@@ -12,7 +12,6 @@ def process_data(filename, skiprow=0):
   # drop id
   df.drop(0,axis=1,inplace=True)
   print('Data Loaded, preview:')
-  #print(df.head())
   print df.shape
 
   return df
@@ -25,8 +24,6 @@ def generate_dataset(data):
   data_X[:,:-1] = np.array(data.ix[:,0:data.shape[1]-1], dtype=float)
   data_X[:,-1] = np.zeros(data_X.shape[0])+1
   data_y = np.array(data.ix[:,data.shape[1]], dtype=float)
-  print data_X.shape
-  print data_y.shape
   return [data_X, data_y]
 
 def sigmoid(z):
@@ -34,96 +31,90 @@ def sigmoid(z):
     return 1
   if z <= -100:
     return 0  
-  return 1/(1+math.exp(-z))
+  return 1/(1+np.exp(-z))
 
-def grad_f(dataset, w):
+def grad_cross_entropy(dataset, w):
+  [data_X, data_y] = dataset
   g = 0
-  for x,y in dataset:
-    x = np.array(x)
+  for idx in range(len(data_y)):
+    x = data_X[idx]
+    y = data_y[idx]
+    g += (sigmoid(w.T.dot(x))-y)*x
     #print "w*x"
     #print -y*w.T.dot(x)
     #print "sigmoid(w*x)"
     #print sigmoid(-y * w.T.dot(x)) 
-    g += (-y+sigmoid(w.T.dot(x)))*x
-  return g / len(dataset)
+  return g / len(data_y)
 
 def cross_entropy(dataset,w):
   ce = 0
   e = 1e-100
-  for x,y in dataset:
+  [data_X, data_y] = dataset
+  for x,y in zip(data_X, data_y):
     ce += y*np.log(sigmoid(np.dot(x,w))+e)+(1-y)*np.log(1-sigmoid(np.dot(x,w))+e)
-  return ce
+  return -1*ce/len(dataset)
   
-def logistic(dataset, it=10000): 
+
+def ERM_solver(dataset, loss, grad_loss, model_init=0,  eta=0.1, it=600000): 
   [data_X, data_y]=dataset
-  #print data_X.shape
-  #print data_y.shape
-  w = np.zeros(data_X.shape[1]) 
-  eta = 0 
-  gd_sum = 0
+  if(str(model_init) == '0') :
+    w = np.zeros(len(data_X[0]))
+    gd_sum = 1e-10
+    print "Initial Models"
+  else :
+    w = model_init[0]
+    gd_sum = model_init[1]
+    print "Using Existing Models"
   for i in range(it):
-    gd = grad_f(zip(data_X, data_y),w)
-    w = w - eta * gd
+    gd = grad_loss(dataset, w)
     gd_sum = gd_sum+np.dot(gd,gd)
-    eta = 1000000/np.sqrt(gd_sum)
+    w = w - eta/np.sqrt(gd_sum)*gd 
     if i%200==0:
       #print "eta"
       #print eta
       #print "w"
       #print w
       print "cross entropy:"
-      print cross_entropy(zip(data_X, data_y), w)
-      #print 'gd_sum'
-      #print np.sqrt(gd_sum)
+      print loss(dataset, w)
+      print 'gd'
+      print np.dot(gd,gd)
       print "# "+str(i)+" iterations"
       print "-----------------------"
-  return w
+  return np.array([w, gd_sum])
 
 def predict(data, models):
   if sigmoid(np.dot(data, models)) > 0.5:
     return 1
   return 0 
-
-def AdaGrad(f, gf, n, dataset, theta,T):
-    gd_sq_sum = np.zeros(n, dtype=float)
-    eta = 1
-    e = 1e-8
-    for t in range(1, T):
-        g = gf(trainSet, theta)
-        gd_sq_sum += g*g
-        for i in range(0, n):
-            theta[i] -= eta * g[i] / np.sqrt(gd_sq_sum[i] + e)
-        grad_norm = np.linalg.norm(gf(trainSet, theta))
-        print "Itr = %d" % t
-        #print "f(theta) =", f(trainSet, theta)
-        #print "norm(grad) =", grad_norm
-        if grad_norm < 1e-3:
-          return theta
-    return theta
   
 
 if __name__ == '__main__':
   data = process_data('data/spam_train.csv')
   [train_X, train_y] = generate_dataset(data)
-  print train_X[0]
-  print train_y[0]
-  models = logistic([train_X[0:2800], train_y[0:2800]])
-  print models  
-  print np.dot(models,train_X[0])
+  print train_X[0:10,0:10]
+  print train_y[0:10]
+ 
+  models_init = np.load('models.npy')
+  models = ERM_solver([train_X[0:3500], train_y[0:3500]], cross_entropy, grad_cross_entropy, models_init)
+  model = models[0]
+  print model  
+  print np.dot(model,train_X[0])
+   
+  np.save('models', models)
+  
   labels = []
   results = []
-  for i in range(50):
-    results.append(sigmoid(np.dot(models,train_X[i])))
-    labels.append(predict(train_X[i],models))
   cnt = 0
-  for i in range(50):
-    if int(labels[i])==int(train_y[i]):
-      cnt+=1
-  print cnt
-  print str(float(cnt)*2)+"%"
-  print results
-  print labels
-  print train_y.astype(int)[0:50]
+  for i in range(3600,3700):
+    results.append(sigmoid(np.dot(model,train_X[i])))
+    labels.append(predict(train_X[i],model))
+    if int(predict(train_X[i], model)) == int(train_y[i]):
+      cnt += 1
+  
+  print "Accuracy: " + str(cnt) + "%"
+  print "Sigmoid output: " + str(results)
+  print "Prediction labels: " + str(labels)
+  print "true labels: " + str(train_y.astype(int)[0:50])
   
   
 

@@ -28,14 +28,18 @@ def sigmoid(z):
     return 1
   if z <= -100:
     return 0  
+  return 1/(1+np.exp(-z))
 
 def predict(data, models):
+  #print np.dot(data, models)
+  print sigmoid(np.dot(data, models)) > 0.5
   if sigmoid(np.dot(data, models)) > 0.5:
     return 1
   return 0 
 
 if __name__ == '__main__':
   models = np.load(file(sys.argv[1]))
+  print models[0]
   testData = process_data(file(sys.argv[2]))
   test_X = generate_dataset(testData)
   

@@ -1,6 +1,8 @@
 import numpy as np
 import pandas as pd
 import math as math
+import sys
+import os
 
 
 def process_data(filename, skiprow=0):
@@ -11,8 +13,6 @@ def process_data(filename, skiprow=0):
   df = pd.read_csv(filename, header=None, skiprows=skiprow)
   # drop id
   df.drop(0,axis=1,inplace=True)
-  print('Data Loaded, preview:')
-  print df.shape
 
   return df
 
@@ -27,6 +27,9 @@ def generate_dataset(data):
   return [data_X, data_y]
 
 def sigmoid(z):
+  '''
+  truncated sigmoid to avoid overflows
+  '''
   if z >= 100:
     return 1
   if z <= -100:
@@ -34,6 +37,9 @@ def sigmoid(z):
   return 1/(1+np.exp(-z))
 
 def grad_cross_entropy(dataset, w):
+  '''
+  gradient function of cross entropy
+  '''
   [data_X, data_y] = dataset
   g = 0
   for idx in range(len(data_y)):
@@ -55,7 +61,7 @@ def cross_entropy(dataset,w):
   return -1*ce/len(dataset)
   
 
-def ERM_solver(dataset, loss, grad_loss, model_init=0,  eta=0.1, it=600000): 
+def ERM_solver(dataset, loss, grad_loss, model_init = 0,  eta = 0.1, it = 60000): 
   [data_X, data_y]=dataset
   if(str(model_init) == '0') :
     w = np.zeros(len(data_X[0]))
@@ -70,13 +76,11 @@ def ERM_solver(dataset, loss, grad_loss, model_init=0,  eta=0.1, it=600000):
     gd_sum = gd_sum+np.dot(gd,gd)
     w = w - eta/np.sqrt(gd_sum)*gd 
     if i%200==0:
-      #print "eta"
-      #print eta
-      #print "w"
-      #print w
-      print "cross entropy:"
+      print "Effective eta :"
+      print eta/np.sqrt(gd_sum)
+      print "current risk: "
       print loss(dataset, w)
-      print 'gd'
+      print 'current gradient norm: '
       print np.dot(gd,gd)
       print "# "+str(i)+" iterations"
       print "-----------------------"
@@ -89,32 +93,44 @@ def predict(data, models):
   
 
 if __name__ == '__main__':
+  # Training data processing
   data = process_data('data/spam_train.csv')
   [train_X, train_y] = generate_dataset(data)
   print train_X[0:10,0:10]
   print train_y[0:10]
  
-  models_init = np.load('models.npy')
-  models = ERM_solver([train_X[0:3500], train_y[0:3500]], cross_entropy, grad_cross_entropy, models_init)
-  model = models[0]
-  print model  
-  print np.dot(model,train_X[0])
-   
-  np.save('models', models)
+  # Train the model
+  if os.path.isfile('models.npy'):
+    models_init = np.load('models.npy')
+  else :
+    models_init = 0
+  eta = 0.1
+  it = 10000
+  models = ERM_solver([train_X[0:3500], train_y[0:3500]], cross_entropy, grad_cross_entropy, models_init, eta, it)
+  print models[0]  
+  print np.dot(models[0],train_X[0])
+  
   
   labels = []
   results = []
   cnt = 0
+
+  # Validation Section
   for i in range(3600,3700):
-    results.append(sigmoid(np.dot(model,train_X[i])))
-    labels.append(predict(train_X[i],model))
-    if int(predict(train_X[i], model)) == int(train_y[i]):
+    results.append(sigmoid(np.dot(models[0],train_X[i])))
+    labels.append(predict(train_X[i],models[0]))
+    if int(predict(train_X[i], models[0])) == int(train_y[i]):
       cnt += 1
   
-  print "Accuracy: " + str(cnt) + "%"
   print "Sigmoid output: " + str(results)
-  print "Prediction labels: " + str(labels)
-  print "true labels: " + str(train_y.astype(int)[0:50])
+  print "Accuracy: " + str(cnt) + "%"
   
+  # Save the potential models
+  if cnt >= 85:
+    np.save('models_eta'+str(eta)+'_it'+str(it), models)
+    print 'Models with good potential, save it !!'
+  
+  else:
+    print 'Terrible result !!'
   
 

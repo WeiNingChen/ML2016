@@ -38,7 +38,7 @@ def predict(data, models):
   return 0 
 
 if __name__ == '__main__':
-  models = np.load(file(sys.argv[1]))
+  models = np.load(file(sys.argv[1]+".npy"))
   print models[0]
   testData = process_data(file(sys.argv[2]))
   test_X = generate_dataset(testData)

@@ -30,10 +30,10 @@ def sigmoid(z):
   '''
   truncated sigmoid to avoid overflows
   '''
-  if z >= 100:
-    return 1
-  if z <= -100:
-    return 0  
+  #if z >= 100:
+  #  return 1
+  #if z <= -100:
+  #  return 0  
   return 1/(1+np.exp(-z))
 
 def grad_cross_entropy(dataset, w):
@@ -105,7 +105,7 @@ if __name__ == '__main__':
   else :
     models_init = 0
   eta = 0.1
-  it = 10000
+  it = 60000
   models = ERM_solver([train_X[0:3500], train_y[0:3500]], cross_entropy, grad_cross_entropy, models_init, eta, it)
   print models[0]  
   print np.dot(models[0],train_X[0])

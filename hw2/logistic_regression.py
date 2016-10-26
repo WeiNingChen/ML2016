@@ -111,10 +111,15 @@ class lr_model:
     self.eta = eta
     self.it = it
     self.model = 0
+  
   def fit(self, train_X, train_y):
     self.model = ERM_solver([train_X, train_y], self.loss, self.grad_loss, self.init, self.eta, self.it)
+  
   def predict(self, test_X):
     return predict(test_X, self.model[0])
+  
+  def get_params(self, deep = False):
+    return {'model_init':self.init, 'eta':self.eta, 'it':self.it}
 
 def lr(model_init = 0, eta = 0.1, it = 10000):
   return lr_model(model_init = model_init, eta = eta, it = it)

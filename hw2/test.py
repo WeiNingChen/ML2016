@@ -1,6 +1,8 @@
 import sys
 import pandas as pd
 import numpy as np
+import pickle
+import logistic_regression
 
 
 def process_data(filename, skiprow=0):
@@ -23,27 +25,14 @@ def generate_dataset(data):
   data_X[:,-1] = np.zeros(data_X.shape[0])+1
   return data_X
 
-def sigmoid(z):
-  if z >= 100:
-    return 1
-  if z <= -100:
-    return 0  
-  return 1/(1+np.exp(-z))
-
-def predict(data, models):
-  #print np.dot(data, models)
-  print sigmoid(np.dot(data, models)) > 0.5
-  if sigmoid(np.dot(data, models)) > 0.5:
-    return 1
-  return 0 
 
 if __name__ == '__main__':
-  models = np.load(file(sys.argv[1]+".npy"))
-  print models[0]
   testData = process_data(file(sys.argv[2]))
   test_X = generate_dataset(testData)
   
-  labels = [predict(data, models[0]) for data in test_X]
+  model = pickle.load(open(sys.argv[1], 'rb'))
+
+  labels = model.predict(test_X)
   ids = [i+1  for i in range(len(labels))]
 
   output = pd.DataFrame({'id': ids, 'label': labels})

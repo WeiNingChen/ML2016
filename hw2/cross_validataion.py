@@ -5,9 +5,6 @@ import random as rnd
 
 from sklearn.model_selection import cross_val_score
 
-def random_partition(index_list, k=2):
-  division = len(lst) / float(k) 
-  return [ index_list[int(round(division*i)):int(round(division*(i+1)))] for i in xrange(k) ]
   
 
 def process_data(filename, skiprow=0):
@@ -37,22 +34,9 @@ if __name__ == '__main__':
   
   # Cross validation
   mod_init = np.load('model/models_12.npy')
-  model = logistic_regression.lr(it = 10000, eta =0.1, model_init = mod_init)
-  scores = cross_val_score(model, train_X, train_y, scoring = 'accuracy', cv = 3)
+  model = logistic_regression.lr(it = 0, eta =0.1, model_init = mod_init)
+  scores = cross_val_score(model, train_X, train_y, scoring = 'accuracy', cv = 10)
+  print 'Scores:'
   print scores
+  print 'Average :'+str(np.mean(scores))
   
-  '''
-  # Training Model
-  model = logistic_regression.lr(it = 10000, eta = 0.1)
-  model.fit(train_X[0:3500], train_y[0:3500]) 
-  labels = model.predict(train_X[3600:3700])
-  print labels
-  print train_y[0:100]
-
-  acc = 0
-  for i in range(100):
-    if labels[i] == train_y[i+3600]:
-      acc += 1
-
-  print 'Accuracy:'+str(acc)+'%'
-  '''

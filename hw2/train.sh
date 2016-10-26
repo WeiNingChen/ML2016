@@ -1,3 +1,3 @@
 #!/bin/bash
 
-python logistic_regression.py $1 $2
+python train.py $1 $2

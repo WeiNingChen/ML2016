@@ -4,6 +4,7 @@ import math as math
 import random as rnd
 import sys
 import os
+import pickle
 
 
 
@@ -120,7 +121,7 @@ class lr_model:
   
   def get_params(self, deep = False):
     return {'model_init':self.init, 'eta':self.eta, 'it':self.it}
-
+  
 def lr(model_init = 0, eta = 0.1, it = 10000):
   return lr_model(model_init = model_init, eta = eta, it = it)
 

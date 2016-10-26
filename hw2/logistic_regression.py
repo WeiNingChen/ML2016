@@ -1,8 +1,10 @@
 import numpy as np
 import pandas as pd
 import math as math
+import random as rnd
 import sys
 import os
+
 
 
 def process_data(filename, skiprow=0):
@@ -59,7 +61,6 @@ def cross_entropy(dataset,w):
   for x,y in zip(data_X, data_y):
     ce += y*np.log(sigmoid(np.dot(x,w))+e)+(1-y)*np.log(1-sigmoid(np.dot(x,w))+e)
   return -1*ce/len(dataset)
-  
 
 def ERM_solver(dataset, loss, grad_loss, model_init = 0,  eta = 0.1, it = 60000): 
   [data_X, data_y]=dataset
@@ -87,10 +88,38 @@ def ERM_solver(dataset, loss, grad_loss, model_init = 0,  eta = 0.1, it = 60000)
   return np.array([w, gd_sum])
 
 def predict(data, models):
-  if sigmoid(np.dot(data, models)) > 0.5:
-    return 1
-  return 0 
-  
+  labels = []
+  for i in range(len(data)):
+    if sigmoid(np.dot(data[i], models)) > 0.5:
+      labels.append(int(1))
+    else: 
+      labels.append(int(0))
+  return labels
+
+
+
+
+
+class lr_model:
+  '''
+  Modulize logistic regression
+  '''
+  def __init__(self, loss = cross_entropy, grad_loss = grad_cross_entropy, model_init = 0, eta = 0.1, it = 10000):
+    self.loss = loss
+    self.grad_loss = grad_loss
+    self.init = model_init
+    self.eta = eta
+    self.it = it
+    self.model = 0
+  def fit(self, train_X, train_y):
+    self.model = ERM_solver([train_X, train_y], self.loss, self.grad_loss, self.init, self.eta, self.it)
+  def predict(self, test_X):
+    return predict(test_X, self.model[0])
+
+def lr(model_init = 0, eta = 0.1, it = 10000):
+  return lr_model(model_init = model_init, eta = eta, it = it)
+
+
 
 if __name__ == '__main__':
   # Training data processing
@@ -105,7 +134,7 @@ if __name__ == '__main__':
   else :
     models_init = 0
   eta = 0.1
-  it = 60000
+  it = 200
   models = ERM_solver([train_X[0:3500], train_y[0:3500]], cross_entropy, grad_cross_entropy, models_init, eta, it)
   print models[0]  
   print np.dot(models[0],train_X[0])
@@ -118,11 +147,12 @@ if __name__ == '__main__':
   # Validation Section
   for i in range(3600,3700):
     results.append(sigmoid(np.dot(models[0],train_X[i])))
-    labels.append(predict(train_X[i],models[0]))
-    if int(predict(train_X[i], models[0])) == int(train_y[i]):
+    labels.extend(predict([train_X[i]],models[0]))
+    if int(predict([train_X[i]], models[0])[0]) == int(train_y[i]):
       cnt += 1
   
   print "Sigmoid output: " + str(results)
+  print labels
   print "Accuracy: " + str(cnt) + "%"
   
   # Save the potential models

@@ -52,13 +52,14 @@ if __name__ == '__main__':
   
 
   # Train the model
-  #model = svm.SVC(kernel = 'linear', C=100).fit(train_X[0:3500], train_y[0:3500])
+  model = svm.SVC(kernel = 'linear', C=100).fit(train_X[0:3500], train_y[0:3500])
   #model = KNeighborsClassifier(n_neighbors=500).fit(train_X[0:3500], train_y[0:3500])
   #print 'Test scores'+ str(model.score(train_X[3500:4000], train_y[3500:4000]))
   # Validation Part
-  #scores = cross_val_score(model, train_X[:], train_y[:], cv = 3)
+  scores = cross_val_score(model, train_X[:], train_y[:], cv = 3)
   #print 'Test scores: '+ str(scores) + '%'
-
+  
+  '''
   # create model
   model = Sequential()
   model.add(Dense(len(train_X[0]), input_dim=len(train_X[0]), init='uniform', activation='relu'))
@@ -66,6 +67,7 @@ if __name__ == '__main__':
   model.add(Dense(1, init='uniform', activation='sigmoid'))
   # Compile model
   model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+  '''
   # Fit the model
   model.fit(train_X[0:3500], train_y[0:3500], nb_epoch=150, batch_size=10)
   # evaluate the model

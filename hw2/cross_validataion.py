@@ -34,8 +34,8 @@ if __name__ == '__main__':
   
   # Cross validation
   mod_init = np.load('model/models_12.npy')
-  model = logistic_regression.lr(it = 0, eta =0.1, model_init = mod_init)
-  scores = cross_val_score(model, train_X, train_y, scoring = 'accuracy', cv = 10)
+  model = logistic_regression.lr(it = 10000, eta =0.1, model_init = 0)
+  scores = cross_val_score(model, train_X, train_y, scoring = 'accuracy', cv = 5)
   print 'Scores:'
   print scores
   print 'Average :'+str(np.mean(scores))

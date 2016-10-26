@@ -49,10 +49,6 @@ def grad_cross_entropy(dataset, w):
     x = data_X[idx]
     y = data_y[idx]
     g += (sigmoid(w.T.dot(x))-y)*x
-    #print "w*x"
-    #print -y*w.T.dot(x)
-    #print "sigmoid(w*x)"
-    #print sigmoid(-y * w.T.dot(x)) 
   return g / len(data_y)
 
 def cross_entropy(dataset,w):
@@ -67,16 +63,17 @@ def ERM_solver(dataset, loss, grad_loss, model_init = 0,  eta = 0.1, it = 60000)
   [data_X, data_y]=dataset
   if(str(model_init) == '0') :
     w = np.zeros(len(data_X[0]))
-    gd_sum = 1e-10
-    print "Initial Models"
+    gd_sum = np.zeros(len(w))+1e-8
+    print "Initialze Models"
   else :
     w = model_init[0]
     gd_sum = model_init[1]
     print "Using Existing Models"
   for i in range(it):
     gd = grad_loss(dataset, w)
-    gd_sum = gd_sum+np.dot(gd,gd)
-    w = w - eta/np.sqrt(gd_sum)*gd 
+    for j in range(len(gd_sum)):
+      gd_sum[j] = gd_sum[j]+gd[j]*gd[j]
+      w[j] = w[j] - eta/np.sqrt(gd_sum[j])*gd[j] 
     if i%200==0:
       print "Effective eta :"
       print eta/np.sqrt(gd_sum)

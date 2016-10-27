@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import pickle
 import logistic_regression
+import feature as ft
 
 
 def process_data(filename, skiprow=0):
@@ -28,13 +29,17 @@ def generate_dataset(data):
 
 if __name__ == '__main__':
   testData = process_data(file(sys.argv[2]))
-  test_X = generate_dataset(testData)
+  [model, reconst] = pickle.load(open(sys.argv[1], 'rb'))
   
-  model = pickle.load(open(sys.argv[1], 'rb'))
-
+  # Preprocessing data
+  temp_X = generate_dataset(testData)
+  test_X = ft.get_test_feature(temp_X, reconst)
+  
+  # Predict test data
   labels = model.predict(test_X)
   ids = [i+1  for i in range(len(labels))]
-
+  
+  # Save the output
   output = pd.DataFrame({'id': ids, 'label': labels})
   output.to_csv(sys.argv[3], index = False)
   

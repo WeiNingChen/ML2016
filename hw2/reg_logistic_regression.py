@@ -64,21 +64,21 @@ def ERM_solver(dataset, loss, grad_loss, model_init = 0,  eta = 0.1, it = 60000,
   if(str(model_init) == '0') :
     w = np.zeros(len(data_X[0]))
     gd_sum = np.zeros(len(w))+1e-8
-    print "Initialze Models"
+    print "> Initialize Model"
   else :
     w = model_init[0]
     gd_sum = model_init[1]
-    print "Using Existing Models"
+    print "> Using Existing Model"
   for i in range(it):
     gd = grad_loss(dataset, w, lmbda)
     for j in range(len(gd_sum)):
       gd_sum[j] = gd_sum[j]+gd[j]*gd[j]
       w[j] = w[j] - eta/np.sqrt(gd_sum[j])*gd[j] 
-    if i%200==0:
-      print "Effective eta :"
-      print eta/np.sqrt(gd_sum)
-      print "current risk: "
-      print loss(dataset, w)
+    if i%1000==0:
+      #print "Effective eta :"
+      #print eta/np.sqrt(gd_sum)
+      #print "current risk: "
+      #print loss(dataset, w)
       print 'current gradient norm: '
       print np.dot(gd,gd)
       print "# "+str(i)+" iterations"
@@ -112,13 +112,13 @@ class lr_model:
     self.lmbda = lmbda
   
   def fit(self, train_X, train_y):
-    self.model = ERM_solver([train_X, train_y], self.loss, self.grad_loss, self.init, self.eta, self.it)
+    self.model = ERM_solver([train_X, train_y], self.loss, self.grad_loss, self.init, self.eta, self.it, self.lmbda)
   
   def predict(self, test_X):
     return predict(test_X, self.model[0])
   
   def get_params(self, deep = False):
-    return {'model_init':self.init, 'eta':self.eta, 'it':self.it, 'lmbda' = self.lmbda}
+    return {'model_init':self.init, 'eta':self.eta, 'it':self.it, 'lmbda' : self.lmbda}
   
 def lr(model_init = 0, eta = 0.1, it = 10000, lmbda = 0.1):
   return lr_model(model_init = model_init, eta = eta, it = it, lmbda = lmbda)

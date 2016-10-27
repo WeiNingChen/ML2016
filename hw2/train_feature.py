@@ -9,22 +9,26 @@ from matplotlib.pyplot import subplots, show
 if __name__ == '__main__':
   # Training data processing
   data = logistic_regression.process_data(sys.argv[1])
+  
   [preTrain_X, train_y] = logistic_regression.generate_dataset(data)
+  '''
   print 'Size of preTrain data:'
   print preTrain_X.shape
 
-  temp = ft.quad_mapping(preTrain_X)
+  temp = ft.quad_mapping(preTrain_X[0:3500])
   print 'Size of data after poynomial mapping:'
   print temp.shape
 
-  [temp, reconstMat] = ft.pca(temp[:, :-3], 150)
+  [temp, reconstMat] = ft.pca(temp, 100)
   print 'Size of featured data afte PCA:'
   print temp.shape
 
   train_X = ft.add_const_column(temp)
   print 'Size of data after add constant column:'
   print train_X.shape
-  
+  '''
+  [train_X, reconstMat] = ft.get_train_feature(preTrain_X[:], 150)
+
   # Train the model
   if os.path.isfile('model/models_12.npy'):
     mdl_init = np.load('model/models_12.npy')
@@ -32,7 +36,7 @@ if __name__ == '__main__':
     mdl_init = 0
   model = logistic_regression.lr(eta = 0.1, it = 60000, model_init = 0)
   
-  model.fit(train_X, train_y)
+  model.fit(train_X[:], train_y[:])
   
   pickle.dump([model, reconstMat], open(sys.argv[2], 'wb'))
  

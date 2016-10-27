@@ -33,10 +33,10 @@ def sigmoid(z):
   '''
   truncated sigmoid to avoid overflows
   '''
-  #if z >= 100:
-  #  return 1
-  #if z <= -100:
-  #  return 0  
+  if z >= 100:
+    return 1
+  if z <= -100:
+    return 0  
   return 1/(1+np.exp(-z))
 
 def grad_cross_entropy(dataset, w):

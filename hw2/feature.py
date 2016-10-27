@@ -37,20 +37,18 @@ def pca_reconstruct(data, recst):
   
 
 
-def quad_mapping(data ):
+def quad_mapping(data, k = 15):
   '''
     Mapping the original data to quadratic space, i.e.
     [X1, X2,..., Xn] -> [X1^2, X1X2, X1X3,..., X2^2,...,xn^2 ]
   '''
   [num, dim] = data.shape
-  feature = np.zeros([num, 3*dim], dtype = float)
+  feature = np.zeros([num, k*dim], dtype = float)
   for idx in range(num):
     for i in range(dim):
-      feature[idx, 3*i]  = data[idx, i]
-      feature[idx, 3*i+1] = data[idx, i]*data[idx, i] 
-      feature[idx, 3*i+2] = feature[idx, 3*i+1]*data[idx, i] 
-
-  return feature
+      for pw in range(k):
+        feature[idx, k*i+pw]  = np.power(data[idx, i],pw+1)
+  return feature[:,:-k]
 
 
 
@@ -68,14 +66,14 @@ def add_const_column(data, k = 1):
 
 def get_train_feature(data, dim = 100):
   tmp = quad_mapping(data)
-  [tmp, rcnst] = pca(data[:,:-3], dim)
-  train_X = tmp.add_const_column
+  [tmp, rcnst] = pca(tmp, dim)
+  train_X = add_const_column(tmp)
   return [train_X, rcnst]
 
 def get_test_feature(data, rcnst):
 
   tmp = quad_mapping(data)
-  tmp = pca_reconstruct(tmp[:,:-3], rcnst)
+  tmp = pca_reconstruct(tmp, rcnst)
   test_X = add_const_column(tmp)
   return test_X
 

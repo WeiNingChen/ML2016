@@ -15,7 +15,7 @@ if __name__ == '__main__':
     mdl_init = np.load('model/models_12.npy')
   else :
     mdl_init = 0
-  model = logistic_regression.lr(eta = 0.1, it = 1000, model_init = mdl_init)
+  model = logistic_regression.lr(eta = 0.1, it = 1000, model_init = 0)
   model.fit(train_X[0:3500], train_y[0:3500])
   pickle.dump(model, open(sys.argv[2], 'wb'))
   

@@ -37,7 +37,7 @@ def pca_reconstruct(data, recst):
   
 
 
-def quad_mapping(data, k = 2):
+def quad_mapping(data, k = 8):
   '''
     Mapping the original data to quadratic space, i.e.
     [X1, X2,..., Xn] -> [X1^2, X1X2, X1X3,..., X2^2,...,xn^2 ]
@@ -65,14 +65,17 @@ def add_const_column(data, k = 1):
   return new_data
 
 def get_train_feature(data, dim = 100):
+  print 'Mapping Data to High Dimensional Space: 10 dims...'
   tmp = quad_mapping(data)
+  print 'PCA Selecting features: '+str(dim) +' features...'
   [tmp, rcnst] = pca(tmp, dim)
   train_X = add_const_column(tmp)
   return [train_X, rcnst]
 
 def get_test_feature(data, rcnst):
-
+  print 'Mapping Data to High Dimensional Space: 10 dims...'
   tmp = quad_mapping(data)
+  print 'PCA Reconstruction...'
   tmp = pca_reconstruct(tmp, rcnst)
   test_X = add_const_column(tmp)
   return test_X

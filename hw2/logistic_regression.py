@@ -64,19 +64,19 @@ def ERM_solver(dataset, loss, grad_loss, model_init = 0,  eta = 0.1, it = 60000)
   if(str(model_init) == '0') :
     w = np.zeros(len(data_X[0]))
     gd_sum = np.zeros(len(w))+1e-8
-    print "Initialze Models"
+    print "> Initialze Models"
   else :
     w = model_init[0]
     gd_sum = model_init[1]
-    print "Using Existing Models"
+    print "> Using Existing Models"
   for i in range(it):
     gd = grad_loss(dataset, w)
     for j in range(len(gd_sum)):
       gd_sum[j] = gd_sum[j]+gd[j]*gd[j]
       w[j] = w[j] - eta/np.sqrt(gd_sum[j])*gd[j] 
-    if i%200==0:
-      print "Effective eta :"
-      print eta/np.sqrt(gd_sum)
+    if i%500==0:
+      #print "Effective eta :"
+      #print eta/np.sqrt(gd_sum)
       print "current risk: "
       print loss(dataset, w)
       print 'current gradient norm: '

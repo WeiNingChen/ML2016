@@ -37,7 +37,7 @@ def pca_reconstruct(data, recst):
   
 
 
-def quad_mapping(data, k = 20):
+def quad_mapping(data, k = 2):
   '''
     Mapping the original data to quadratic space, i.e.
     [X1, X2,..., Xn] -> [X1^2, X1X2, X1X3,..., X2^2,...,xn^2 ]

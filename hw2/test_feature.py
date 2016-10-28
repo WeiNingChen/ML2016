@@ -6,6 +6,11 @@ import logistic_regression
 import feature as ft
 
 
+#######
+from sklearn import svm
+from sklearn.neural_network import MLPClassifier
+#######
+
 def process_data(filename, skiprow=0):
   '''
   Load and process data omtp a list of pandas DataFrame
@@ -37,6 +42,7 @@ if __name__ == '__main__':
   
   # Predict test data
   labels = model.predict(test_X)
+  labels = [int(i) for i in labels ]
   ids = [i+1  for i in range(len(labels))]
   
   # Save the output

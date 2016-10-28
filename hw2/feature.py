@@ -37,7 +37,7 @@ def pca_reconstruct(data, recst):
   
 
 
-def quad_mapping(data, k = 8):
+def quad_mapping(data, k = 3):
   '''
     Mapping the original data to quadratic space, i.e.
     [X1, X2,..., Xn] -> [X1^2, X1X2, X1X3,..., X2^2,...,xn^2 ]
@@ -101,6 +101,8 @@ if __name__ == '__main__' :
     if int(labels[i]) == 1:
       ax1.scatter(data[i, 0], data[i, 1], c = 'b')
       ax2.scatter(trans[i, 0], trans[i, 1], c = 'b')
+  ax1.set_title('Data Before PCA')
+  ax2.set_title('Data After PCA')
   #show()
    
   trans_feature = pca(feature[:,:-3],100)[0]
@@ -112,5 +114,8 @@ if __name__ == '__main__' :
     if int(labels[i]) == 1:
       ax1_2.scatter(trans[i, 0], trans[i, 1], c = 'b')
       ax2_2.scatter(trans_feature[i, 0], trans_feature[i, 1], c = 'b')
+  ax1_2.set_title('Data Before poly-mapping')
+  ax2_2.set_title('Data After poly-mapping')
+  
   show()
 

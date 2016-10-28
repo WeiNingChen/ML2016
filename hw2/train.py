@@ -16,7 +16,7 @@ if __name__ == '__main__':
   [train_X, reconstMat] = ft.get_train_feature(preTrain_X[:], 100)
 
   # Initilize the model 
-  model = logistic_regression.lr(eta = 0.1, it = 10000, model_init = 0)
+  model = logistic_regression.lr(eta = 0.1, it = 2000, model_init = 0)
   
   # Train the model
   model.fit(train_X[:], train_y[:])

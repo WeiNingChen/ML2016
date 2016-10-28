@@ -74,12 +74,12 @@ def ERM_solver(dataset, loss, grad_loss, model_init = 0,  eta = 0.1, it = 60000)
     for j in range(len(gd_sum)):
       gd_sum[j] = gd_sum[j]+gd[j]*gd[j]
       w[j] = w[j] - eta/np.sqrt(gd_sum[j])*gd[j] 
-    if i%200==0:
-      print "Effective eta :"
-      print eta/np.sqrt(gd_sum)
-      print "current risk: "
+    if i%500==0:
+      #print "Effective eta :"
+      #print eta/np.sqrt(gd_sum)
+      print "Current risk(cross entropy): "
       print loss(dataset, w)
-      print 'current gradient norm: '
+      print 'Current gradient norm: '
       print np.dot(gd,gd)
       print "# "+str(i)+" iterations"
       print "-----------------------"

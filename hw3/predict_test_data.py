@@ -3,12 +3,6 @@ import os
 import sys
 import numpy as np
 import pandas as pd
-from keras.preprocessing.image import ImageDataGenerator
-from keras.models import Sequential
-from keras.layers import Dense, Dropout, Activation, Flatten
-from keras.layers import Convolution2D, MaxPooling2D
-from keras.layers.normalization import BatchNormalization
-from keras.optimizers import SGD
 from keras.models import load_model
 from self_train import load_data, process_unlabel_data
 
@@ -18,15 +12,14 @@ img_rows, img_cols = 32, 32
 img_channels = 3
 
 # File Path
-test_path = '~/Desktop/data/test.p'
+'''test_path = '~/Desktop/data/test.p'
 model_path = sys.argv[1]
 output_path = 'temp.csv'
-
 '''
 test_path = sys.argv[1]+'test.p'
 model_path = sys.argv[2]
 output_path = sys.argv[3]
-'''
+
 
 
 if __name__ == '__main__':

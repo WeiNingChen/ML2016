@@ -8,10 +8,11 @@ from keras.layers import Dense, Dropout, Activation, Flatten
 from keras.layers import Convolution2D, MaxPooling2D
 from keras.layers.normalization import BatchNormalization
 from keras.optimizers import SGD
-from keras.models import load_model
 
-###########################
-from keras.datasets import cifar10
+#############
+from keras import backend as K
+K.set_image_dim_ordering('th')
+#############
 
 # CNN Training Parameters
 batch_size = 32
@@ -23,6 +24,7 @@ img_rows, img_cols = 32, 32
 img_channels = 3
 
 # File Path
+'''
 file_all_label = '~/Desktop/data/all_label.p'
 file_all_unlabel = '~/Desktop/data/all_unlabel.p'
 file_test = '~/Desktop/data/test.p'
@@ -33,7 +35,7 @@ file_all_label = sys.argv[1]+'all_label.p'
 file_all_unlabel = sys.argv[1]+'all_unlabel.p'
 file_test = sys.argv[1]+'test.p'
 file_model = sys.argv[2]
-'''
+
 
 def load_data(filename):
   '''
@@ -184,15 +186,17 @@ if __name__ == '__main__':
   unlabel_data = load_data(file_all_unlabel)
   print 'Loading test data...'
   test_data = load_data(file_test)
-  print 'Loading validation data...'
-  (X_train, y_train), (X_val, y_val) = cifar10.load_data()
-   
+  #print 'Loading validation data...'
+  #(X_train, y_train), (X_val, y_val) = cifar10.load_data()
+  
+  ''' 
   # Preprocess validation data
   print 'Preprocess validation data...'
   X_val = X_val.astype('float32')
   X_val /= 255
   y_val = np.array(y_val).reshape(len(y_val),1)
-  
+  '''
+
   print 'Preprocess labeled data...'
   (X_train, y_train) = process_labeled_data(label_data) 
   print 'Preprocess unlabeled data...'
@@ -202,18 +206,7 @@ if __name__ == '__main__':
   
   print 'Using unlabeled test data!!'
   X_unlabel = np.concatenate((X_unlabel, X_test))
-
-  model = load_model('model_it_8.ks')
   
-  (X_unlabel, (X_total, y_total)) = reload_train_set(X_unlabel, X_train, y_train, model, top_k = 55000)
-  
-  model = generate_new_model()
-  print 'Start fitting the model!!'
-  model.fit(X_total, y_total, batch_size=batch_size, nb_epoch=250, shuffle=True)
-  print 'Save model...'
-  model.save('model_final.ks')
-  
-
   print 'Generating Model...'
   model = generate_new_model() 
   print model.summary()
@@ -222,7 +215,7 @@ if __name__ == '__main__':
   print 'Start fitting the model!!'
   model.fit(X_train, y_train, batch_size=batch_size, nb_epoch=nb_epoch, shuffle=True)
   print 'Save model...'
-  model.save('model_supervised_700.ks')
+  model.save(sys.argv[2])
 
 
   # Iteratively reload unlabel data 1 (No Val)
@@ -235,12 +228,12 @@ if __name__ == '__main__':
   print 'The shape of remaining unlabeled data:'
   print X_unlabel.shape
   model = generate_new_model()
-  model.fit(X_train, y_train, batch_size=batch_size, nb_epoch=250, validation_data = (X_val, y_val), shuffle=True)
+  model.fit(X_train, y_train, batch_size=batch_size, nb_epoch=250, shuffle=True)
   print 'Save model...'
-  model.save('model_it_1.ks')
+  model.save(sys.argv[2])
 
 
-  # Iteratively reload unlabel data 2 (val)
+  # Iteratively reload unlabel data 2 (No val)
   print 'Reloading training set'
   (X_unlabel, (X_train, y_train)) = reload_train_set(X_unlabel, X_train, y_train, model, top_k = 6000)
   
@@ -250,9 +243,9 @@ if __name__ == '__main__':
   print 'The shape of remaining unlabeled data:'
   print X_unlabel.shape
   model = generate_new_model()
-  model.fit(X_train, y_train, batch_size=batch_size, nb_epoch=250, validation_data = (X_val, y_val), shuffle=True)
+  model.fit(X_train, y_train, batch_size=batch_size, nb_epoch=250, shuffle=True)
   print 'Save model...'
-  model.save('model_it_2.ks')
+  model.save(sys.argv[2])
 
 
   # Iteratively reload unlabel data 3(No val)
@@ -267,7 +260,6 @@ if __name__ == '__main__':
   model = generate_new_model()
   model.fit(X_train, y_train, batch_size=batch_size, nb_epoch=200, shuffle=True)
   print 'Save model...'
-  model.save('model_it_3.ks')
   
 
 # Iteratively reload unlabel data 4 (No val)
@@ -283,7 +275,7 @@ if __name__ == '__main__':
   model.fit(X_train, y_train, batch_size=batch_size, nb_epoch=200, shuffle=True)
   
 
-# Iteratively reload unlabel data 5(Val)
+# Iteratively reload unlabel data 5(No Val)
   print 'Reloading training set'
   (X_unlabel, (X_train, y_train)) = reload_train_set(X_unlabel, X_train, y_train, model, top_k = 4000)
   
@@ -293,8 +285,8 @@ if __name__ == '__main__':
   print 'The shape of remaining unlabeled data:'
   print X_unlabel.shape
   model = generate_new_model()
-  model.fit(X_train, y_train, batch_size=batch_size, nb_epoch=250, validation_data = (X_val, y_val), shuffle=True)
-  model.save('model_it_5.ks')
+  model.fit(X_train, y_train, batch_size=batch_size, nb_epoch=250, shuffle=True)
+  model.save(sys.argv[2])
 
 
 # Iteratively reload unlabel data 6 (No val)
@@ -308,7 +300,6 @@ if __name__ == '__main__':
   print X_unlabel.shape
   model = generate_new_model()
   model.fit(X_train, y_train, batch_size=batch_size, nb_epoch=200, shuffle=True)
-  model.save('model_it_6.ks')
   
 
 # Iteratively reload unlabel data 7 (No val)
@@ -322,10 +313,9 @@ if __name__ == '__main__':
   print X_unlabel.shape
   model = generate_new_model()
   model.fit(X_train, y_train, batch_size=batch_size, nb_epoch=200, shuffle=True)
-  model.save('model_it_7.ks')
 
 
-# Iteratively reload unlabel data 8 (val)
+# Iteratively reload unlabel data 8 (No val)
   print 'Reloading training set'
   (X_unlabel, (X_train, y_train)) = reload_train_set(X_unlabel, X_train, y_train, model, top_k = 5000)
   
@@ -335,8 +325,8 @@ if __name__ == '__main__':
   print 'The shape of remaining unlabeled data:'
   print X_unlabel.shape
   model = generate_new_model()
-  model.fit(X_train, y_train, batch_size=batch_size, nb_epoch=200, validation_data = (X_val, y_val), shuffle=True)
-  model.save('model_it_8.ks')
+  model.fit(X_train, y_train, batch_size=batch_size, nb_epoch=200, shuffle=True)
+  model.save(sys.argv[2])
 
 
 # Iteratively reload unlabel data 9 (No val)
@@ -350,4 +340,4 @@ if __name__ == '__main__':
   print X_unlabel.shape
   model = generate_new_model()
   model.fit(X_train, y_train, batch_size=batch_size, nb_epoch=250, shuffle=True)
-  model.save('model_it_8.ks')
+  model.save(sys.argv[2])

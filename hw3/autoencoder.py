@@ -61,7 +61,7 @@ print X_train.shape
 print X_test.shape
 
 autoencoder.fit(X_unlabel, X_unlabel,
-                nb_epoch=10,
+                nb_epoch=100,
                 batch_size=256,
                 shuffle=True,
                 validation_data=(X_train, X_train))
@@ -72,7 +72,7 @@ X_train_feature = X_train_feature.reshape(X_train.shape[0],128)
 
 encoder.save(file_model+'_ac')
 
-model = svm.SVC(decision_function_shape='ovo')
+model = svm.SVC(decision_function_shape='ovo', C = 30)
 model.fit(X_train_feature, y_train.reshape(y_train.shape[0],))
 
 pickle.dump(model,open(file_model+'_svm', 'wb'))

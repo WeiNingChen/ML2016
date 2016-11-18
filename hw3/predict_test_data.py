@@ -1,5 +1,6 @@
 import pickle
 import os
+import sys
 import numpy as np
 import pandas as pd
 from keras.preprocessing.image import ImageDataGenerator
@@ -18,8 +19,15 @@ img_channels = 3
 
 # File Path
 test_path = '~/Desktop/data/test.p'
-model_path = 'model_epoch_1000.ks'
-output_path = 'output_epoch_2000_Layer_5_bank_2048.csv'
+model_path = sys.argv[1]
+output_path = 'temp.csv'
+
+'''
+test_path = sys.argv[1]+'test.p'
+model_path = sys.argv[2]
+output_path = sys.argv[3]
+'''
+
 
 if __name__ == '__main__':
 

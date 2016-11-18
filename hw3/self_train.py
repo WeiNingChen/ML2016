@@ -31,10 +31,6 @@ file_test = '~/Desktop/data/test.p'
 file_model = 'model_final.ks'
 
 '''
-file_all_label = sys.argv[1]+'all_label.p'
-file_all_unlabel = sys.argv[1]+'all_unlabel.p'
-file_test = sys.argv[1]+'test.p'
-file_model = sys.argv[2]
 
 
 def load_data(filename):
@@ -179,6 +175,14 @@ def reload_train_set(X_new, X_train, y_train, model, threshold = 0.6, top_k = 10
 
 if __name__ == '__main__':
   
+  
+  # Set env path
+
+  file_all_label = sys.argv[1]+'all_label.p'
+  file_all_unlabel = sys.argv[1]+'all_unlabel.p'
+  file_test = sys.argv[1]+'test.p'
+  file_model = sys.argv[2]
+
   # Load data set
   print 'Loading labeled data...'
   label_data = load_data(file_all_label)

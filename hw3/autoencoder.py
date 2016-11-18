@@ -1,8 +1,12 @@
 from keras.layers import Input, Dense
 from keras.layers import Convolution2D, MaxPooling2D, UpSampling2D
 from keras.models import Model
-from clustering import load_data, process_labeled_data, process_unlabel_data
+from self_train import load_data, process_labeled_data, process_unlabel_data
+import numpy as np
+from sklearn import svm
 
+from keras import backend as K
+K.set_image_dim_ordering('th')
 
 # File Path
 file_all_label = '~/Desktop/data/all_label.p'
@@ -12,7 +16,6 @@ file_model = 'model_final.ks'
 
 
 input_img = Input(shape=(3, 32, 32))
-from keras.models import Model
 
 x = Convolution2D(16, 3, 3, activation='relu', border_mode='same')(input_img)
 x = MaxPooling2D((2, 2), border_mode='same')(x)
@@ -35,32 +38,40 @@ autoencoder = Model(input_img, decoded)
 autoencoder.compile(optimizer='adadelta', loss='binary_crossentropy')
 print autoencoder.summary()
 
-#from keras.datasets import mnist
-import numpy as np
+# this model maps an input to its encoded representation
+encoder = Model(input=input_img, output=encoded)
+print encoder.summary()
 
-# Load data set
 print 'Loading labeled data...'
 label_data = load_data(file_all_label)
-#print 'Loading unlabeled data...'
-#unlabel_data = load_data(file_all_unlabel)
+print 'Loading unlabeled data...'
+unlabel_data = load_data(file_all_unlabel)
 print 'Loading test data...'
 test_data = load_data(file_test)
    
   
 print 'Preprocess labeled data...'
 (X_train, y_train) = process_labeled_data(label_data) 
-#print 'Preprocess unlabeled data...'
-#X_unlabel = process_unlabel_data(unlabel_data)
 print 'Preprocess test data...'
 X_test = process_unlabel_data(test_data['data'])
+X_unlabel = process_unlabel_data(unlabel_data)
 
-#X_train = X_train.reshape((len(X_train), np.prod(X_train.shape[1:])))
-#X_test = X_test.reshape((len(X_test), np.prod(X_test.shape[1:])))
 print X_train.shape
 print X_test.shape
 
-autoencoder.fit(X_train, X_train,
-                nb_epoch=50,
+autoencoder.fit(X_unlabel, X_unlabel,
+                nb_epoch=10,
                 batch_size=256,
                 shuffle=True,
-                validation_data=(X_test, X_test))
+                validation_data=(X_train, X_train))
+
+X_train_feature = encoder.predict(X_train)
+print X_train_feature.shape
+X_train_feature = X_train_feature.reshape(X_train.shape[0],128)
+
+
+model = svm.SVC(decision_function_shape='ovo')
+model.fit(X_train_feature, y_train)
+
+y_test = model.predict(encoder.predict(X_test).reshape(X_test.shape[0],128))
+print y_test[1:100]

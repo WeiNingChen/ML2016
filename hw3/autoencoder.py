@@ -2,18 +2,19 @@ from keras.layers import Input, Dense
 from keras.layers import Convolution2D, MaxPooling2D, UpSampling2D
 from keras.models import Model
 from self_train import load_data, process_labeled_data, process_unlabel_data
-import numpy as np
 from sklearn import svm
+import numpy as np
+import pickle
+import sys
 
 from keras import backend as K
 K.set_image_dim_ordering('th')
 
-# File Path
-file_all_label = '~/Desktop/data/all_label.p'
-file_all_unlabel = '~/Desktop/data/all_unlabel.p'
-file_test = '~/Desktop/data/test.p'
-file_model = 'model_final.ks'
-
+# Set env path
+file_all_label = sys.argv[1]+'all_label.p'
+file_all_unlabel = sys.argv[1]+'all_unlabel.p'
+file_test = sys.argv[1]+'test.p'
+file_model = sys.argv[2]
 
 input_img = Input(shape=(3, 32, 32))
 
@@ -69,9 +70,12 @@ X_train_feature = encoder.predict(X_train)
 print X_train_feature.shape
 X_train_feature = X_train_feature.reshape(X_train.shape[0],128)
 
+encoder.save(file_model+'_ac')
 
 model = svm.SVC(decision_function_shape='ovo')
-model.fit(X_train_feature, y_train)
+model.fit(X_train_feature, y_train.reshape(y_train.shape[0],))
+
+pickle.dump(model,open(file_model+'_svm', 'wb'))
 
 y_test = model.predict(encoder.predict(X_test).reshape(X_test.shape[0],128))
 print y_test[1:100]

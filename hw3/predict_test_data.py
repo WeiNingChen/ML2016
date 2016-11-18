@@ -28,11 +28,12 @@ if __name__ == '__main__':
   print 'Loading test data and model...'
   test_data = load_data(test_path)
   X_test = process_unlabel_data(test_data['data'])
-  model = load_model(model_path)
+  encoder = load_model(model_path+'_ac')
+  model = pickle.load(open(model_path+'_svm'))
 
   # Predict test label
   print 'Predict test labels...'
-  y_test = model.predict_classes(X_test)
+  y_test = model.predict(encoder.predict(X_test).reshape(X_test.shape[0],128))
   
   # Write output file
   #ids = [i+1  for i in range(len(y_test))]

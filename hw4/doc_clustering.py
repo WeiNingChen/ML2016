@@ -74,14 +74,20 @@ from time import time
 import numpy as np
 import os
 import pandas as pd
+import sys
 
-title_path = os.path.expanduser('~/Desktop/data/title_StackOverflow.txt')
-doc_path = os.path.expanduser('~/Desktop/data/docs.txt')
-check_index_path = os.path.expanduser('~/Desktop/data/check_index.csv')
+
+data_path = sys.argv[1]
+csv_path = sys.argv[2]
+
+title_path = os.path.expanduser(data_path+'title_StackOverflow.txt')
+doc_path = os.path.expanduser(data_path+'docs.txt')
+check_index_path = os.path.expanduser(data_path+'check_index.csv')
 
 
 
 # parse commandline arguments
+'''
 op = OptionParser()
 op.add_option("--lsa",
               dest="n_components", type="int",
@@ -108,7 +114,7 @@ if len(args) > 0:
     op.error("this script takes no arguments.")
     sys.exit(1)
 
-
+'''
 
 
 ###############################################################################
@@ -126,7 +132,7 @@ labels = ['wordpress', 'oracle', 'svn', 'apache', 'excel',
           'scala', 'sharepoint', 'ajax', 'qt', 'drupal',
           'linq', 'haskell', 'magento']
 
-true_k = np.unique(labels).shape[0]
+true_k = 53
 
 print("%d documents" % len(dataset))
 print("%d categories" % len(labels))
@@ -134,22 +140,9 @@ print()
 
 print("Extracting features from the training dataset using a sparse vectorizer")
 t0 = time()
-if opts.use_hashing:
-    if opts.use_idf:
-        # Perform an IDF normalization on the output of HashingVectorizer
-        hasher = HashingVectorizer(n_features=opts.n_features,
-                                   stop_words='english', non_negative=True,
-                                   norm=None, binary=False)
-        vectorizer = make_pipeline(hasher, TfidfTransformer())
-    else:
-        vectorizer = HashingVectorizer(n_features=opts.n_features,
-                                       stop_words='english',
-                                       non_negative=False, norm='l2',
-                                       binary=False)
-else:
-    vectorizer = TfidfVectorizer(max_df=0.5, max_features=opts.n_features,
+vectorizer = TfidfVectorizer(max_df=0.5, max_features=10000,
                                  min_df=2, stop_words='english',
-                                 use_idf=opts.use_idf)
+                                 use_idf=True)
 #vectorizer.fit
 
 
@@ -157,20 +150,20 @@ else:
 with open(doc_path, 'r') as myfile:
     doc=myfile.read().replace('\n', '')
 
-dataset.append(doc)
+#dataset.append(doc)
 X = vectorizer.fit_transform(dataset)
 
 print("done in %fs" % (time() - t0))
 print("n_samples: %d, n_features: %d" % X.shape)
 print()
 
-if opts.n_components:
+if True:
     print("Performing dimensionality reduction using LSA")
     t0 = time()
     # Vectorizer results are normalized, which makes KMeans behave as
     # spherical k-means for better results. Since LSA/SVD results are
     # not normalized, we have to redo the normalization.
-    svd = TruncatedSVD(opts.n_components)
+    svd = TruncatedSVD(20)
     normalizer = Normalizer(copy=False)
     lsa = make_pipeline(svd, normalizer)
 
@@ -188,12 +181,9 @@ if opts.n_components:
 ###############################################################################
 # Do the actual clustering
 
-if opts.minibatch:
-    km = MiniBatchKMeans(n_clusters=true_k, init='k-means++', n_init=100,
-                         init_size=1000, batch_size=100, verbose=opts.verbose)
-else:
-    km = KMeans(n_clusters=true_k, init='k-means++', max_iter=10000, n_init=10000,
-                verbose=opts.verbose, n_jobs = -1)
+
+km = KMeans(n_clusters=true_k, init='k-means++', max_iter=10000, n_init=500,
+                verbose=False, n_jobs = -1)
 
 print("Clustering sparse data with %s" % km)
 t0 = time()
@@ -211,38 +201,22 @@ print("Silhouette Coefficient: %0.3f"
 
 print()
 
-
-if not opts.use_hashing:
-    print("Top terms per cluster:")
-
-    if opts.n_components:
-        original_space_centroids = svd.inverse_transform(km.cluster_centers_)
-        order_centroids = original_space_centroids.argsort()[:, ::-1]
-    else:
-        order_centroids = km.cluster_centers_.argsort()[:, ::-1]
-
-    terms = vectorizer.get_feature_names()
-    for i in range(true_k):
-        print("Cluster %d:" % i, end='')
-        for ind in order_centroids[i, :10]:
-            print(' %s' % terms[ind], end='')
-        print()
-
-
 # Predict
 df = pd.read_csv(check_index_path)
+index_arry = np.array([df.ix[:,1], df.ix[:,2]]).T
+label_arry = km.labels_
 ans = []
 ids = []
 for i in range(5000000):
   if i % 10000 == 0:
     print(i)
-  if km.labels_[df.ix[i,1]]==km.labels_[df.ix[i,2]]:
+  if label_arry[index_arry[i,0]]==label_arry[index_arry[i,1]]:
     ans.append(1)
   else :
     ans.append(0)
   ids.append(i)
 
 output = pd.DataFrame({'ID':ids, 'Ans':ans}, columns= ['ID', 'Ans'])
-output.to_csv('kmeans_clustering.csv',index = False)
+output.to_csv(csv_path,index = False)
 
 
